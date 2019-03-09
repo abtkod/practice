@@ -37,14 +37,12 @@ class DeepNetwork(object):
                 
         def cost_adjustment(self, **kw):
             assert set(['lambd', 'm', 'W']).issubset(kw.keys()), 'invalid parameters'            
-            if kw['lambd'] == 0.0:
-                return 0.0
             if self.kind == 'L2':
                 return kw['lambd']/kw['m']/2 * reduce((lambda x,y: x+y), map(lambda W: np.linalg.norm(W, ord='fro')**2, kw['W']))        
 
     def __init__(self, units_per_layer, activation_functions, regularization_type='L2'):
         assert len(units_per_layer) == len(activation_functions), 'layer mismatch'
-        self._regular = self.Regularization(regularization_type)
+        self._regularizer = self.Regularization(regularization_type)
         self.units_per_layer = list(units_per_layer)
         self.activation_functions = list(activation_functions)
         self._W = None
@@ -58,14 +56,21 @@ class DeepNetwork(object):
     def b(self):
         return self._b[1:]
         
-    def train(self, X, Y, alpha, max_iterations, lambd=0.0, terminate_on_cost_change=0.00000001, print_cost_every=100)->np.array:
+    def train(self, X, Y, alpha, max_iterations, lambd=None, dropout:list=None, 
+              terminate_on_cost_change=0.00000001, print_cost_every=100)->np.array:
+        
+        L = len(self.units_per_layer) # input is not counted in the number of layers
+        
         assert X.shape[1] == Y.shape[1], 'invalid input'
+        assert 0<=alpha and (lambd is None or 0<=lambd), 'invalid hyperparameters'
+        if dropout is None: # dropout = 1 - keep-prob
+            dropout = [False for i in range(L+1)] # L+1: input layer usually has no dropout (keep-prob == 1.0)
+        assert len(dropout) == L+1 and reduce((lambda x,y: x and y), map(lambda x: 0.0 <= x < 1.0, dropout)), 'invalid dropout list'
         
         np.random.seed(1)
         m = X.shape[1] # number of examples
         n = [X.shape[0]] + self.units_per_layer # n[0] is the size of the input layer
-        G = [None] + self.activation_functions # different functions across layers
-        L = len(n)-1 # actual number of layers are len(n)-1
+        G = [None] + self.activation_functions # different functions across layers        
         
         A = [X] + [np.zeros((n[l], m)) for l in range(1, L+1)] # for layer l we have n[l] activations per example
         W = [None] + [np.random.randn(n[l], n[l-1])/np.sqrt(n[l-1]) for l in range(1, L+1)] # for each layer w.T= W[l]: (n[l], n[l-1])
@@ -78,26 +83,37 @@ class DeepNetwork(object):
         
         cost = float("inf")
         for i in range(max_iterations):
-
+            
+            if dropout[0]:
+                D = np.random.rand(X.shape[0], X.shape[1]) > dropout[0]
+                A[0] = np.multiply(A[0], D) / (1-dropout[0])
+            else:
+                A[0] = X
+            
             # forward propagation from layer 1 to layer L
             for l in range(1, L+1):
                 Z[l] = np.dot(W[l], A[l-1]) + b[l]
                 A[l] = G[l](Z[l]) # applying activation function for layer l on Z[l]
+                
+                if dropout[l]:
+                    D = np.random.rand(A[l].shape[0], A[l].shape[1]) > dropout[l]
+                    A[l] = np.multiply(A[l], D) / (1-dropout[l])
                         
             # backward propagation from layer L to layer 1    
             for l in range(L, 0, -1): # from L <= l <= 1         
                 if l == L:              
-                    dZ[L] = DeepNetwork.loss(A[L], Y, derivative=True) * G[L](Z[L], derivative=True)            
+                    # dZ[L] = DeepNetwork.loss(A[L], Y, derivative=True) * G[L](Z[L], derivative=True)
+                    dZ[L] = A[L] - Y
                 else:
                     dZ[l] = np.dot(W[l+1].T, dZ[l+1]) * G[l](Z[l], derivative=True) # dA[l]= np.dot(W[l+1].T, dZ[l+1])
                 dW[l] = 1/m * np.dot(dZ[l], A[l-1].T)
                 db[l] = 1/m * np.sum(dZ[l], axis=1, keepdims=True)
 
-                wdec = self._regular.weight_decay(**{'alpha':alpha, 'lambd':lambd, 'm':m})
+                wdec = 1.0 if lambd is None else self._regularizer.weight_decay(**{'alpha':alpha, 'lambd':lambd, 'm':m})
                 W[l] = wdec * W[l] - alpha * dW[l] # (1 - alpha*lambd/m) is the weight decay coming from L2 regularization
                 b[l] = b[l] - alpha * db[l]
             
-            reg_val = self._regular.cost_adjustment(**{'lambd':lambd, 'm':m, 'W':W[1:]})
+            reg_val = 0.0 if lambd is None else self._regularizer.cost_adjustment(**{'lambd':lambd, 'm':m, 'W':W[1:]})
             new_cost = DeepNetwork.cost(A[L], Y, regularization_value=reg_val)
             if 0 < cost - new_cost < terminate_on_cost_change:
                 cost = new_cost
