@@ -15,9 +15,17 @@ from functools import reduce
 class DeepNetwork(object):
     
     # activation functions with derivatives
-    SIGMOID = lambda z, derivative=False: 1/(1 + np.exp(-z)) if not derivative else np.exp(-z)/(1+np.exp(-z))**2
+    def SIGMOID(z, derivative=False):        
+        if not derivative:
+            r = 1/(1 + np.exp(-z))
+        else:
+            r = np.exp(-z)/(1+np.exp(-z))**2
+        r[r == 0.0] = np.nextafter(0, 1)
+        r[r == 1.0] = np.nextafter(1, -1)        
+        return r
+#     SIGMOID = lambda z, derivative=False: 1/(1 + np.exp(-z)) if not derivative else np.exp(-z)/(1+np.exp(-z))**2
     TANH = lambda z, derivative=False: np.tanh(z) if not derivative else 1 - np.tanh(z)**2
-    RELU = lambda z, derivative=False: np.where(z<=0, 0, z) if not derivative else np.where(z<=0, 0, 1)
+    RELU = lambda z, derivative=False: np.maximum(0, z) if not derivative else np.where(z<0, 0, 1)
     
     # it may even works with multiple unit output layer
     loss = lambda yhat, y, derivative=False: (-1) * (y * np.log(yhat) + (1-y) * np.log(1-yhat)) if not derivative else\
