@@ -21,7 +21,7 @@ class DeepNetwork(object):
         else:
             r = np.exp(-z)/(1+np.exp(-z))**2
         r[r == 0.0] = np.nextafter(0, 1)
-        r[r == 1.0] = np.nextafter(1, -1)        
+        r[r == 1.0] = np.nextafter(1, -1)
         return r
 #     SIGMOID = lambda z, derivative=False: 1/(1 + np.exp(-z)) if not derivative else np.exp(-z)/(1+np.exp(-z))**2
     TANH = lambda z, derivative=False: np.tanh(z) if not derivative else 1 - np.tanh(z)**2
@@ -65,7 +65,7 @@ class DeepNetwork(object):
         return self._b[1:]
         
     def train(self, X, Y, alpha, max_iterations, lambd=None, dropout:list=None, 
-              terminate_on_cost_change=0.00000001, print_cost_every=100)->np.array:
+              terminate_on_cost_change=0.0000001, print_cost_every=100)->np.array:                
         
         L = len(self.units_per_layer) # input is not counted in the number of layers
         
@@ -99,9 +99,9 @@ class DeepNetwork(object):
                 A[0] = X
             
             # forward propagation from layer 1 to layer L
-            for l in range(1, L+1):
-                Z[l] = np.dot(W[l], A[l-1]) + b[l]
-                A[l] = G[l](Z[l]) # applying activation function for layer l on Z[l]
+            for l in range(1, L+1):                
+                Z[l] = np.dot(W[l], A[l-1]) + b[l]                
+                A[l] = G[l](Z[l]) # applying activation function for layer l on Z[l]                                
                 
                 if dropout[l]:
                     D = np.random.rand(A[l].shape[0], A[l].shape[1]) > dropout[l]
@@ -120,7 +120,7 @@ class DeepNetwork(object):
                 wdec = 1.0 if lambd is None else self._regularizer.weight_decay(**{'alpha':alpha, 'lambd':lambd, 'm':m})
                 W[l] = wdec * W[l] - alpha * dW[l] # (1 - alpha*lambd/m) is the weight decay coming from L2 regularization
                 b[l] = b[l] - alpha * db[l]
-            
+
             reg_val = 0.0 if lambd is None else self._regularizer.cost_adjustment(**{'lambd':lambd, 'm':m, 'W':W[1:]})
             new_cost = DeepNetwork.cost(A[L], Y, regularization_value=reg_val)
             if 0 < cost - new_cost < terminate_on_cost_change:
