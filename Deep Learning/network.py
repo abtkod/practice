@@ -66,6 +66,7 @@ class DeepNetwork(object):
         
     def train(self, X, Y, alpha, max_iterations, lambd=None, dropout:list=None, 
               terminate_on_cost_change=0.0000001, print_cost_every=100)->np.array:                
+        '''Dropout is a list of floats. Each number tells the percentage of neurons to be ignored in each layer'''
         
         L = len(self.units_per_layer) # input is not counted in the number of layers
         
