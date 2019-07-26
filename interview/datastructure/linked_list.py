@@ -2,10 +2,11 @@ from datastructure.node import *
 
 
 class LinkedList:
-    def __init__(self, fixed_dtype=True):        
+    def __init__(self, NodeClass=Node):        
+        assert issubclass(NodeClass, BaseNode), 'Invalid NodeClass'
         self._head = None        
         self._size = 0
-        self.__NodeClass = Node if fixed_dtype else BaseNode
+        self.__NodeClass = NodeClass
     
     def __len__(self):
         return self._size    
@@ -50,7 +51,7 @@ class LinkedList:
         while fw[0][0] is not None:
             fw = fw[0]
         value = fw[0].value
-        fw[0] = None
+        fw.remove_child(0)
         return value
     
     def __repr__(self):
@@ -61,7 +62,7 @@ class LinkedList:
             rep[level] = node
             list_repr(node[0], rep, level+1)
         list_repr(self._head, rep, 1)
-        return 'LinkedList(%s): %s' % (self._size, rep)
+        return 'LinkedList<%s>: %s' % (self._size, rep)
     
     def __str__(self):                
         def list_str(node):
@@ -69,13 +70,15 @@ class LinkedList:
                 return ''
             val = str(node.value) if type(node.value) != str else "'%s'" % node.value
             return "%s"% val + ', ' + list_str(node[0])
-        return 'LinkedList: [' + list_str(self._head)[:-2] + ']'
+        return f'{self.__class__.__name__}<{self._size}>: [{list_str(self._head)[:-2]}]'
 
 
 class LinkedListFast(LinkedList):
-    # using parent sttribute in BaseNode class
-    def __init__(self, fixed_dtype=True):
-        super().__init__(fixed_dtype)
+    '''
+    LinkedListFast uses an extra tail property besides the parent property of the nodes to improve speed of append and pop.
+    '''
+    def __init__(self, NodeClass=Node):
+        super().__init__(NodeClass)
         self._tail = None
     
     def append(self, value):
@@ -92,9 +95,10 @@ class LinkedListFast(LinkedList):
         self._size -= 1        
         if self._head == self._tail:
             value = self._head.value
-            self._head = self._head = None
+            self._head = self._tail = None
             return value
         
         value = self._tail.value
-        self._tail = self._tail._parent
+        self._tail = self._tail._parents[0]
+        self._tail.remove_child(0)
         return value
