@@ -2,8 +2,9 @@ from datastructure.node import *
 
 
 class Queue:
-    def __init__(self, fixed_dtype=True):
-        self.__NodeClass = Node if fixed_dtype else BaseNode
+    def __init__(self, NodeClass=Node):
+        assert issubclass(NodeClass, BaseNode), 'Invalid NodeClass'
+        self.__NodeClass = NodeClass
         self._first = None
         self._last = None
         self._size = 0        
