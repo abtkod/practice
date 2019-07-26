@@ -40,7 +40,7 @@ class Queue:
             rep[level] = node
             queue_repr(node[0], rep, level+1)
         queue_repr(self._first, rep, 1)
-        return 'Queue(%s): %s' % (self._size, rep)
+        return 'Queue<%s>: %s' % (self._size, rep)
     
     def __str__(self):                
         def queue_str(node):
@@ -48,4 +48,4 @@ class Queue:
                 return ''
             val = str(node.value) if type(node.value) != str else "'%s'" % node.value
             return "%s"% val + ' > ' + queue_str(node[0])
-        return 'Queue: [' + queue_str(self._first)[:-3] + ']'
+        return f'{self.__class__.__name__}<{self._size}>: [{queue_str(self._first)[:-3]}]'
