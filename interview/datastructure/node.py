@@ -24,8 +24,19 @@ class BaseNode(object):
     def child_count(self):
         return len(self._children) - self._children.count(None)
     
+    def replace_child(self, cindex, child):
+        assert 0 <= cindex < len(self._children), 'Invalid child index'
+        assert isinstance(child, type(self)), f'New child must be a subclasses of {type(self)}'
+        if self._children[cindex] is not None:
+            # remove current child
+            self.remove_child(cindex)
+        self._children[cindex] = child
+        child._parents.append(self)
+    
     def remove_child(self, cindex):
         assert 0 <= cindex < len(self._children), 'Invalid child index'
+        if self._children[cindex] is None:
+            return
         self._children[cindex]._parents.remove(self)
         self._children[cindex] = None
     
@@ -36,17 +47,8 @@ class BaseNode(object):
         assert 0 <= cindex < len(self._children), 'Invalid child index'
         return self._children[cindex]
     
-    def __setitem__(self, cindex, child):
-        if child is None:
-            self._children[cindex] = None
-            return
-        assert isinstance(child, type(self)), f'Children must be subclasses of {type(self)}'
-        assert 0 <= cindex < len(self._children), 'Invalid child index'                
-        if self._children[cindex] is not None:
-            # remove current child
-            self.remove_child(cindex)
-        self._children[cindex] = child
-        child._parents.append(self)
+    def __setitem__(self, cindex, child):        
+        return self.remove_child(cindex) if child is None else self.replace_child(cindex, child)        
         
     def __call__(self):
         '''
