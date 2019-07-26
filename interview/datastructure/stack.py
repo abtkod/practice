@@ -35,7 +35,7 @@ class Stack:
             rep[level] = node
             stack_repr(node[0], rep, level+1)
         stack_repr(self._top, rep, 1)
-        return 'Stack<%s>: %s' % (self._size, rep)
+        return f'{self.__class__.__name__}<%s>: %s' % (self._size, rep)
     
     def __str__(self):                
         def stack_str(node):

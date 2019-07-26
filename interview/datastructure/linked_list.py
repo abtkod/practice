@@ -62,7 +62,7 @@ class LinkedList:
             rep[level] = node
             list_repr(node[0], rep, level+1)
         list_repr(self._head, rep, 1)
-        return 'LinkedList<%s>: %s' % (self._size, rep)
+        return f'{self.__class__.__name__}<%s>: %s' % (self._size, rep)
     
     def __str__(self):                
         def list_str(node):
