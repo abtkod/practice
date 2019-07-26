@@ -5,7 +5,7 @@
 
 ## Data Structures
 
-### Node
+### [Node](https://github.com/abtkod/practice/blob/master/interview/datastructure/node.py)
 * BaseNode
 * Node
 * NodeFlexible
