@@ -12,6 +12,7 @@
 
 ### Linked List
 * LinkedList
+  *  Time Complexity
 * LinkedListFast
 
 ### Tree
