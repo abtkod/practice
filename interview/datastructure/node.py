@@ -32,6 +32,7 @@ class BaseNode(object):
             self.remove_child(cindex)
         self._children[cindex] = child
         child._parents.append(self)
+        return self
     
     def remove_child(self, cindex):
         assert 0 <= cindex < len(self._children), 'Invalid child index'
@@ -39,6 +40,7 @@ class BaseNode(object):
             return
         self._children[cindex]._parents.remove(self)
         self._children[cindex] = None
+        return self
     
     def max_child_count(self):
         return len(self._children)
