@@ -1,61 +1,51 @@
 def pond_sizes(matrix):
-	def get_previous_cells(i, j, matrix):
-		prevs = []
-		if i-1>= 0 and j-1 >= 0:
-			prevs.append((i-1, j-1))
-		if i-1 >= 0:
-			prevs.append((i-1, j))
-		if i-1 >= 0 and j+1 < len(matrix[0]):
-			prevs.append((i-1, j+1))
-		if j-1 >= 0:
-			prevs.append((i, j-1))
-		return prevs
+	def get_zero_neighbours(i, j, matrix):
+		neighbours = []
+		for m in [i-1, i, i+1]:
+			for k in [j-1, j, j+1]:
+				if (m,k) == (i, j):
+					continue
+				if m < 0 or k < 0 or m >= len(matrix) or k >= len(matrix):
+					continue
+				if matrix[m][k] == 0:
+					neighbours.append((m, k))
+		return neighbours
 
-	def build_ponds(zeros, ponds):		
-		ponds_list = {}
-		for x, y in zeros[-1::-1]:			
-			if ponds_list.get((x,y), -1) == -1:
-				ponds_list[(x,y)] = []
-			
-			this_pond = ponds_list[(x,y)]
-			this_pond.append((x,y))			
-
-			attached = ponds[(x,y)]
-			for ax, ay in attached:
-				if ponds_list.get((ax, ay), -1) == -1:
-					ponds_list[(ax, ay)] = this_pond
-				else:					
-					ponds_list[(ax, ay)].extend(this_pond)
-					this_pond = ponds_list[(ax, ay)]
-
-			if len(this_pond) > 1:
-				# this cell is not the source of pond
-				del(ponds_list[(x,y)])
+	def build_ponds(attached):		
+		ponds = {}
+		changed = True
+		for xy in attached.keys():
+			changed = False
+			ponds.setdefault(xy, set([xy]))
+			for nxy in attached[xy]:
+				ponds.setdefault(nxy, set([nxy]))
+				if len(ponds[xy].difference(ponds[nxy])) != 0:
+					ponds[xy].update(ponds[nxy])
+					ponds[nxy] = ponds[xy]
+					changed = True
 		
-		output = []		
-		for pond in ponds_list.values():
-			# remove duplicated cells
-			output.append(list(set(pond)))
-		return output
+		for k in list(ponds.keys()):
+			if k in ponds:
+				for k2 in list(ponds[k]):
+					if k2 in ponds and k2!=k:
+						del(ponds[k2])
+		return list(map(list, ponds.values()))
 
-	################################################
-	zeros = []
-	ponds = {}
-
+		
+	################################################	
+	attached = {}	
 	for i, row in enumerate(matrix):
 		for j, cell in enumerate(row):
 			if cell != 0:
 				continue
-
-			zeros.append((i, j))
-			prevs_xy = get_previous_cells(i, j, matrix)
+						
+			adj_xy = get_zero_neighbours(i, j, matrix)
 			
-			ponds[(i, j)] = []
-			for px, py in prevs_xy:
-				if	matrix[px][py] == 0:
-					ponds[(i, j)].append((px, py))
+			attached[(i, j)] = []			
+			for px, py in adj_xy:				
+				attached[(i, j)].append((px, py))
 	
-	ponds_list = build_ponds(zeros, ponds)
+	ponds_list = build_ponds(attached)	
 	return list(map(len, ponds_list)), list(ponds_list)
 
 
@@ -92,7 +82,7 @@ if __name__ == '__main__':
 	import sys
 	from random import randint
 
-	x, y = int(sys.argv[1]), int(sys.argv[2])
+	x, y = int(sys.argv[1]), int(sys.argv[2])		
 	matrix = [[randint(0,2) for _ in range(y)] for _ in range(x)]
 	print(matrix)
 	psize, ponds = pond_sizes(matrix)
@@ -102,5 +92,4 @@ if __name__ == '__main__':
 	print(sorted(psize))
 	print(sorted(ponds))
 
-	print('First approach does not work for:')
-	print('[[0, 0, 0, 0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]')
+	print('First method is faulty')
