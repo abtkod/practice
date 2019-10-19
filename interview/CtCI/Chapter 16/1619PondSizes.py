@@ -5,30 +5,29 @@ def pond_sizes(matrix):
 			for k in [j-1, j, j+1]:
 				if (m,k) == (i, j):
 					continue
-				if m < 0 or k < 0 or m >= len(matrix) or k >= len(matrix):
+				if m < 0 or k < 0 or m >= len(matrix) or k >= len(matrix[0]):
 					continue
 				if matrix[m][k] == 0:
 					neighbours.append((m, k))
 		return neighbours
 
 	def build_ponds(attached):		
-		ponds = {}
-		changed = True
-		for xy in attached.keys():
-			changed = False
+		ponds = {}		
+		for xy in attached.keys():			
 			ponds.setdefault(xy, set([xy]))
 			for nxy in attached[xy]:
 				ponds.setdefault(nxy, set([nxy]))
-				if len(ponds[xy].difference(ponds[nxy])) != 0:
+				if ponds[xy] != ponds[nxy]:
 					ponds[xy].update(ponds[nxy])
 					ponds[nxy] = ponds[xy]
-					changed = True
 		
 		for k in list(ponds.keys()):
 			if k in ponds:
 				for k2 in list(ponds[k]):
 					if k2 in ponds and k2!=k:
+						ponds[k].update(ponds[k2])
 						del(ponds[k2])
+
 		return list(map(list, ponds.values()))
 
 		
@@ -41,7 +40,7 @@ def pond_sizes(matrix):
 						
 			adj_xy = get_zero_neighbours(i, j, matrix)
 			
-			attached[(i, j)] = []			
+			attached[(i, j)] = []
 			for px, py in adj_xy:				
 				attached[(i, j)].append((px, py))
 	
@@ -82,14 +81,14 @@ if __name__ == '__main__':
 	import sys
 	from random import randint
 
-	x, y = int(sys.argv[1]), int(sys.argv[2])		
+	x, y = int(sys.argv[1]), int(sys.argv[2])				
 	matrix = [[randint(0,2) for _ in range(y)] for _ in range(x)]
 	print(matrix)
 	psize, ponds = pond_sizes(matrix)
 	print(sorted(psize))
-	print(sorted(ponds))
+	# print(sorted(ponds))
 	psize, ponds = pond_sizes_recursive(matrix)	
 	print(sorted(psize))
-	print(sorted(ponds))
+	# print(sorted(ponds))
 
 	print('First method is faulty')
