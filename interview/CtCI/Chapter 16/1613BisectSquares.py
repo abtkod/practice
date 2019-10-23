@@ -8,31 +8,30 @@ class Square:
 		return str(tuple(self.points))
 
 
-def find_bisect_lines(square):
-	def build_line(point1, point2):
-		slope = round((point2[1]-point1[1])/(point2[0]-point1[0]), 3)
-		intercept = point1[1] - point1[0] * slope
-		return slope, intercept
+	def get_bisect_lines(self):
+		me = self.points
+		def build_line(point1, point2):
+			slope = round((point2[1]-point1[1])/(point2[0]-point1[0]), 3)
+			intercept = point1[1] - point1[0] * slope
+			return slope, intercept
 
-	bisect_lines = set()
-	line = f'x = {(square.points[0][0] + square.points[1][0]) / 2}'
-	bisect_lines.add(line)
-	line = f'y = {(square.points[0][1] + square.points[2][1]) / 2}'
-	bisect_lines.add(line)
-	ln = build_line(square.points[0], square.points[3])
-	line = f'y = {ln[0]}x + {ln[1]}'
-	bisect_lines.add(line)
-	ln = build_line(square.points[1], square.points[2])
-	line = f'y = {ln[0]}x + {ln[1]}'
-	bisect_lines.add(line)
-	return bisect_lines
+		bisect_lines = set()
+		line = f'x = {(me[0][0] + me[1][0]) / 2}'
+		bisect_lines.add(line)
+		line = f'y = {(me[0][1] + me[2][1]) / 2}'
+		bisect_lines.add(line)
+		ln = build_line(me[0], me[3])
+		line = f'y = {ln[0]}x + {ln[1]}'
+		bisect_lines.add(line)
+		ln = build_line(me[1], me[2])
+		line = f'y = {ln[0]}x + {ln[1]}'
+		bisect_lines.add(line)
+		return bisect_lines
 
-def bisect_squares(square1, square2):
-	sq1_bsq = find_bisect_lines(square1)
-	sq2_bsq = find_bisect_lines(square2)
+def bisect_squares(square1, square2):	
 	bisect_lines = set()
-	for line in sq1_bsq:
-		if line in sq2_bsq:
+	for line in square1.get_bisect_lines():
+		if line in square2.get_bisect_lines():
 			bisect_lines.add(line)
 	return False if len(bisect_lines) == 0 else bisect_lines
 
