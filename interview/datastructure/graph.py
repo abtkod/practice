@@ -14,12 +14,10 @@ class Graph:
 	@property
 	def is_weighted(self):
 		return self._is_weighted
-		
-	@property
+			
 	def nodes(self):
 		return sorted(self._adjlist.keys())
-		
-	@property
+			
 	def edges(self):
 		edges = set()
 		for n1, nbrs in self._adjlist.items():
@@ -172,12 +170,29 @@ class Graph:
 			del(visit[curn])
 		if prev_node[t] is None:
 			return False
-		path = []		
+		path = []
 		n = t
 		while n is not None:
 			path = [n] + path
 			n = prev_node[n]
-		return path_weights[t], path
+		return path_weights[t], path		
+		
+	def mst_kruskal(self):
+		assert(self._is_weighted and not self._is_directed), 'MST is used for undirected weighted graph'
+		edges = self.edges() # O(E)
+		edges.sort(key=lambda x: x[2]) # O(E log(E))
+		node_to_component = {x:set(x) for x in self._adjlist}
+		mst = set()
+		for e in edges: # O(V)	
+			n1, n2, _ = e			
+			if n2 not in node_to_component[n1]:
+				u = node_to_component[n1].union(node_to_component[n2]) # O(V)
+				for n in u: # O(V)
+					node_to_component[n] = u
+				mst.add(e)
+			if len(mst) == len(node_to_component) - 1:
+				return mst
+		return False
 		
 	def undirected(self):
 		if not self._is_directed:
@@ -216,7 +231,7 @@ if __name__ == '__main__':
 	for n in 'abcdefghij':
 		g.add_node(n)
 	for e in (('a', 'b', 2), ('a', 'c', 8), ('d', 'g', 1), ('c', 'd', 6), ('b', 'd', 4), ('b', 'e', 0), ('e', 'g', 5), 
-				('e', 'f', 1), ('g', 'f', 4), ('h', 'i', 2), ('h', 'j', 2), ('j', 'i', 7)):
+				('e', 'f', 1), ('g', 'f', 4), ('h', 'i', 2), ('h', 'j', 2), ('j', 'i', 7), ('i', 'h', 10), ('i', 'g', 2)):
 		g.add_edge(*e)
 	print(g)
 	print(g.adjacency_matrix())	
@@ -227,3 +242,4 @@ if __name__ == '__main__':
 	gund = g.undirected()
 	print(gund)	
 	print(gund.adjacency_matrix())
+	print(gund.mst_kruskal())
