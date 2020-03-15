@@ -14,6 +14,28 @@ class Graph:
 	@property
 	def is_weighted(self):
 		return self._is_weighted
+		
+	@property
+	def nodes(self):
+		return sorted(self._adjlist.keys())
+		
+	@property
+	def edges(self):
+		edges = set()
+		for n1, nbrs in self._adjlist.items():
+			for n2 in nbrs:
+				if self._is_weighted:
+					if self._is_directed:
+						edges.add((n1, n2[0], n2[1]))
+					else:
+						edges.add((min(n1, n2[0]), max(n1, n2[0]), n2[1]))
+				else:
+					if self._is_directed:
+						edges.add((n1, n2))
+					else:
+						edges.add(min(n1, n2), max(n1, n2))
+					
+		return sorted(edges)
 	
 	def ncount(self):
 		return len(self._adjlist)
@@ -170,10 +192,10 @@ if __name__ == '__main__':
 				('e', 'f', 1), ('g', 'f', 4), ('h', 'i', 2), ('h', 'j', 2), ('j', 'i', 7)):
 		g.add_edge(*e)
 	print(g)
-	print(g.adjacency_matrix())
+	print(g.adjacency_matrix())	
 	print('DFS', g.dfs())
 	print('BFS', g.bfs())
 	print('Topological sort', g.topological_sort())
 	gund = g.undirected()
-	print(gund)
+	print(gund)	
 	print(gund.adjacency_matrix())
