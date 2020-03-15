@@ -20,7 +20,7 @@ class Graph:
 
 	def ecount(self):
 		c = sum(len(x) for x in self._adjlist.values())
-		return c if self.is_directed else c/2
+		return int(c) if self.is_directed else int(c/2)
 
 	def add_node(self, n):
 		assert(n not in self._adjlist), 'node already exists.'
@@ -32,7 +32,34 @@ class Graph:
 		self._adjlist[n1].add(n2) if not self._is_weighted else self._adjlist[n1].add((n2, weight))
 		if not self._is_directed:
 			self._adjlist[n2].add(n1) if not self._is_weighted else self._adjlist[n2].add((n1, weight))
-
+			
+	def adjacency_matrix(self):
+		class AdjacencyMatrix:
+			def __init__(self, nodes):
+				self.__matrix = [['-']*len(nodes) for _ in range(len(nodes))]
+				self.__reverse_mapping = {node:index for index, node in enumerate(nodes)}
+				self.__nodes = list(nodes)
+			def __getitem__(self, tup):
+				n1, n2 = tup
+				return self.__matrix[self.__reverse_mapping[n1]][self.__reverse_mapping[n2]]
+			def __setitem__(self, tup, val):
+				n1, n2 = tup
+				self.__matrix[self.__reverse_mapping[n1]][self.__reverse_mapping[n2]] = val
+			def __repr__(self):
+				rep = '  ' + ' '.join(self.__nodes)
+				for i, row in enumerate(self.__matrix):
+					rep += '\n' + str(self.__nodes[i]) + ' ' + ' '.join(str(c) for c in row)
+				return rep
+		
+		ajm = AdjacencyMatrix(self._adjlist.keys())
+		for nd, nbrs in self._adjlist.items():
+			for nbr in nbrs:
+				if self._is_weighted:
+					ajm[nd, nbr[0]] = nbr[1]
+				else:
+					ajm[nd, nbr] = 1
+		return ajm
+		
 	def dfs(self):		
 		def search(root, output, visited):
 			output.append(root)
@@ -143,7 +170,10 @@ if __name__ == '__main__':
 				('e', 'f', 1), ('g', 'f', 4), ('h', 'i', 2), ('h', 'j', 2), ('j', 'i', 7)):
 		g.add_edge(*e)
 	print(g)
+	print(g.adjacency_matrix())
 	print('DFS', g.dfs())
 	print('BFS', g.bfs())
 	print('Topological sort', g.topological_sort())
-	print(g.undirected())
+	gund = g.undirected()
+	print(gund)
+	print(gund.adjacency_matrix())
