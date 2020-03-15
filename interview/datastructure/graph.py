@@ -38,6 +38,8 @@ class Graph:
 			output.append(root)
 			visited[root] = True
 			for nbr in self._adjlist[root]:
+				if self._is_weighted:
+						nbr = nbr[0]
 				if not visited[nbr]:
 					search(nbr, output, visited)
 		output = []
@@ -57,6 +59,8 @@ class Graph:
 				cur = q.popleft()
 				output.append(cur)				
 				for nbr in self._adjlist[cur]:
+					if self._is_weighted:
+						nbr = nbr[0]
 					if not marked[nbr]:
 						q.append(nbr)
 						marked[nbr] = True
@@ -73,6 +77,8 @@ class Graph:
 		inbound_count = {x:0 for x in self._adjlist}
 		for node, nbrs in self._adjlist.items():
 			for nbr in nbrs:
+				if self._is_weighted:
+						nbr = nbr[0]
 				inbound_count[nbr] += 1
 				
 		from collections import deque
@@ -90,10 +96,36 @@ class Graph:
 			current = q.popleft()
 			output.append(current)
 			for nbr in self._adjlist[current]:
+				if self._is_weighted:
+						nbr = nbr[0]
 				inbound_count[nbr] -= 1
 				if inbound_count[nbr] == 0:
 					q.append(nbr)
 		return output if len(output) == len(self._adjlist) else False
+		
+	def undirected(self):
+		if not self._is_directed:
+			import copy
+			return copy.deepcopy(self)
+		
+		from random import choice
+		edges = {}
+		for n, nbrs in self._adjlist.items():
+			for nb in nbrs:
+				if self._is_weighted:
+					edges.setdefault((n, nb[0]), nb[1])					
+					w = choice([edges[(n, nb[0])], nb[1]])
+					edges[(n, nb[0])] = w
+					edges.setdefault((nb[0], n), nb[1])
+					edges[(nb[0], n)] = w
+				else:
+					edges[(n, nb[0])] = None
+					edges[(nb[0], n)] = None
+		udg = Graph(is_directed=False, is_weighted=self._is_weighted)		
+		for e, w in edges.items():
+			udg._adjlist.setdefault(e[0], set())
+			udg._adjlist[e[0]].add((e[1], w) if w is not None else e[1])
+		return udg
 		
 	def __repr__(self):
 		rep = f'G({self.ncount()}, {self.ecount()}, '\
@@ -104,13 +136,14 @@ class Graph:
 
 
 if __name__ == '__main__':
-	g = Graph()
+	g = Graph(is_weighted=True)
 	for n in 'abcdefghij':
 		g.add_node(n)
-	for e in (('a', 'b'), ('a', 'c'), ('d', 'g'), ('c', 'd'), ('b', 'd'), ('b', 'e'), ('e', 'g'), 
-				('e', 'f'), ('g', 'f'), ('h', 'i'), ('h', 'j'), ('j', 'i')):
+	for e in (('a', 'b', 3), ('a', 'c', 8), ('d', 'g', 1), ('c', 'd', 6), ('b', 'd', 4), ('b', 'e', 0), ('e', 'g', 6), 
+				('e', 'f', 1), ('g', 'f', 4), ('h', 'i', 2), ('h', 'j', 2), ('j', 'i', 7)):
 		g.add_edge(*e)
 	print(g)
 	print('DFS', g.dfs())
 	print('BFS', g.bfs())
 	print('Topological sort', g.topological_sort())
+	print(g.undirected())
