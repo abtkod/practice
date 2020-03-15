@@ -152,6 +152,33 @@ class Graph:
 					q.append(nbr)
 		return output if len(output) == len(self._adjlist) else False
 		
+	def dijkstra(self, s, t):
+		assert (self._is_weighted), 'unweighted graph'
+		assert (s in self._adjlist), 's does not exist'
+		assert (t in self._adjlist), 't does not exist'
+		path_weights = {x:float('inf') for x in self._adjlist}		
+		prev_node = {x: None for x in self._adjlist}
+		visit = {}		
+		path_weights[s] = 0
+		visit[s] = 0
+		while len(visit) > 0:			
+			curn = min(visit, key=visit.get)			
+			curw = visit[curn]			
+			gen = ((n, w) for n, w in self._adjlist[curn] if path_weights[n] > curw +  w)
+			for n, w in gen:
+				path_weights[n] = curw +  w
+				visit[n] = curw +  w
+				prev_node[n] = curn
+			del(visit[curn])
+		if prev_node[t] is None:
+			return False
+		path = []		
+		n = t
+		while n is not None:
+			path = [n] + path
+			n = prev_node[n]
+		return path_weights[t], path
+		
 	def undirected(self):
 		if not self._is_directed:
 			import copy
@@ -188,7 +215,7 @@ if __name__ == '__main__':
 	g = Graph(is_weighted=True)
 	for n in 'abcdefghij':
 		g.add_node(n)
-	for e in (('a', 'b', 3), ('a', 'c', 8), ('d', 'g', 1), ('c', 'd', 6), ('b', 'd', 4), ('b', 'e', 0), ('e', 'g', 6), 
+	for e in (('a', 'b', 2), ('a', 'c', 8), ('d', 'g', 1), ('c', 'd', 6), ('b', 'd', 4), ('b', 'e', 0), ('e', 'g', 5), 
 				('e', 'f', 1), ('g', 'f', 4), ('h', 'i', 2), ('h', 'j', 2), ('j', 'i', 7)):
 		g.add_edge(*e)
 	print(g)
@@ -196,6 +223,7 @@ if __name__ == '__main__':
 	print('DFS', g.dfs())
 	print('BFS', g.bfs())
 	print('Topological sort', g.topological_sort())
+	print('Dijkstra(a, g)', g.dijkstra('a', 'g'))
 	gund = g.undirected()
 	print(gund)	
 	print(gund.adjacency_matrix())
