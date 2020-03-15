@@ -177,40 +177,35 @@ class Graph:
 			n = prev_node[n]
 		return path_weights[t], path		
 		
-	def mst_prime(self):
-		def create_edges(s, nbr_weights):
-			return set([(s, e, w) for e,w in nbr_weights])
-		
+	def mst_prime(self):		
 		assert(self._is_weighted and not self._is_directed), 'MST is used for undirected weighted graph'
-		mst = set()
-		node = max(self._adjlist, key=lambda x: len(self._adjlist[x])) # O(V)
+		mst = set()		
 		to_cover = set(self.nodes())
-		pq = create_edges(node, self._adjlist[node])
+		nd = next(iter(self._adjlist))
+		pq = {nb:(w,nd) for nb, w in self._adjlist[nd]}
+		to_cover.remove(nd)
 		while len(pq) > 0 and len(to_cover) > 0:
-			e = min(pq, key=lambda x: x[2])
-			if e[0] in to_cover or e[1] in to_cover:
-				if e[0] in to_cover:
-					pq.update(create_edges(e[0], self._adjlist[e[0]]))
-					to_cover.remove(e[0])
-				if e[1] in to_cover:
-					pq.update(create_edges(e[1], self._adjlist[e[1]]))
-					to_cover.remove(e[1])
-				mst.add(e)
-			pq.remove(e)
+			cnd = min(pq, key=pq.get)
+			for nb, w in self._adjlist[cnd]:								
+				if nb in to_cover and (nb not in pq or pq[nb][0] > w):
+					pq[nb] = (w, cnd)
+			mst.add((pq[cnd][1], cnd, pq[cnd][0]))
+			del(pq[cnd])
+			to_cover.remove(cnd)
 		return sorted(mst, key=lambda x: x[2]) if len(to_cover) == 0 else False
 			
 		
 	def mst_kruskal(self):
 		assert(self._is_weighted and not self._is_directed), 'MST is used for undirected weighted graph'
-		edges = self.edges() # O(E)
-		edges.sort(key=lambda x: x[2]) # O(E log(E))
+		edges = self.edges()
+		edges.sort(key=lambda x: x[2])
 		node_to_component = {x:set(x) for x in self._adjlist}
 		mst = set()
-		for e in edges: # O(V)	
+		for e in edges:
 			n1, n2, _ = e			
 			if n2 not in node_to_component[n1]:
-				u = node_to_component[n1].union(node_to_component[n2]) # O(V)
-				for n in u: # O(V)
+				u = node_to_component[n1].union(node_to_component[n2])
+				for n in u:
 					node_to_component[n] = u
 				mst.add(e)
 			if len(mst) == self.ncount() - 1:
