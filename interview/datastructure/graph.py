@@ -1,9 +1,6 @@
-import unittest
-# from datastructure.node import NodeFlexible as Node
-
 class Graph:
 	'''
-	Graph represented by adjacency list without using Node class
+	Graph represented by adjacency list
 	'''
 	def __init__(self, is_directed=True, is_weighted=False):
 		self._is_directed = is_directed
@@ -70,7 +67,33 @@ class Graph:
 		for root in notmarked:
 			search(root, output, marked)
 		return output
+		
+	def topological_sort(self):
+		assert(self._is_directed), 'topological sort is for directed graphs'
+		inbound_count = {x:0 for x in self._adjlist}
+		for node, nbrs in self._adjlist.items():
+			for nbr in nbrs:
+				inbound_count[nbr] += 1
 				
+		from collections import deque
+		q = deque()		
+		while True:
+			root = min(inbound_count, key=inbound_count.get)
+			if inbound_count[root] != 0:
+				break
+			q.append(root)
+			del(inbound_count[root])
+		if len(q) == 0:
+			return False
+		output = []		
+		while len(q) >0 :
+			current = q.popleft()
+			output.append(current)
+			for nbr in self._adjlist[current]:
+				inbound_count[nbr] -= 1
+				if inbound_count[nbr] == 0:
+					q.append(nbr)
+		return output if len(output) == len(self._adjlist) else False
 		
 	def __repr__(self):
 		rep = f'G({self.ncount()}, {self.ecount()}, '\
@@ -80,17 +103,14 @@ class Graph:
 		return rep[:-1]
 
 
-class Test(unittest.TestCase):
-	pass
-
-
 if __name__ == '__main__':
 	g = Graph()
 	for n in 'abcdefghij':
 		g.add_node(n)
-	for e in [('a', 'b'), ('a', 'c'), ('d', 'a'), ('d', 'c'), ('c', 'd'), ('b', 'd'), ('b', 'e'), ('e', 'g'), 
-				('e', 'f'), ('g', 'f'), ('h', 'i'), ('h', 'j'), ('j', 'i')]:
+	for e in (('a', 'b'), ('a', 'c'), ('d', 'g'), ('c', 'd'), ('b', 'd'), ('b', 'e'), ('e', 'g'), 
+				('e', 'f'), ('g', 'f'), ('h', 'i'), ('h', 'j'), ('j', 'i')):
 		g.add_edge(*e)
 	print(g)
 	print('DFS', g.dfs())
 	print('BFS', g.bfs())
+	print('Topological sort', g.topological_sort())
