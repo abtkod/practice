@@ -177,6 +177,29 @@ class Graph:
 			n = prev_node[n]
 		return path_weights[t], path		
 		
+	def mst_prime(self):
+		def create_edges(s, nbr_weights):
+			return set([(s, e, w) for e,w in nbr_weights])
+		
+		assert(self._is_weighted and not self._is_directed), 'MST is used for undirected weighted graph'
+		mst = set()
+		node = max(self._adjlist, key=lambda x: len(self._adjlist[x])) # O(V)
+		to_cover = set(self.nodes())
+		pq = create_edges(node, self._adjlist[node])
+		while len(pq) > 0 and len(to_cover) > 0:
+			e = min(pq, key=lambda x: x[2])
+			if e[0] in to_cover or e[1] in to_cover:
+				if e[0] in to_cover:
+					pq.update(create_edges(e[0], self._adjlist[e[0]]))
+					to_cover.remove(e[0])
+				if e[1] in to_cover:
+					pq.update(create_edges(e[1], self._adjlist[e[1]]))
+					to_cover.remove(e[1])
+				mst.add(e)
+			pq.remove(e)
+		return sorted(mst, key=lambda x: x[2]) if len(to_cover) == 0 else False
+			
+		
 	def mst_kruskal(self):
 		assert(self._is_weighted and not self._is_directed), 'MST is used for undirected weighted graph'
 		edges = self.edges() # O(E)
@@ -190,8 +213,8 @@ class Graph:
 				for n in u: # O(V)
 					node_to_component[n] = u
 				mst.add(e)
-			if len(mst) == len(node_to_component) - 1:
-				return mst
+			if len(mst) == self.ncount() - 1:
+				return sorted(mst, key=lambda x: x[2])
 		return False
 		
 	def undirected(self):
@@ -243,3 +266,4 @@ if __name__ == '__main__':
 	print(gund)	
 	print(gund.adjacency_matrix())
 	print(gund.mst_kruskal())
+	print(gund.mst_prime())
