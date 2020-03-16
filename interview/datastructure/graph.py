@@ -208,6 +208,30 @@ class Graph:
 				# negative cycle
 				return False, False
 		return pred_node, path_weights
+
+	def floyed_warshall(self):
+		W = self.adjacency_matrix()
+		N = self.nodes()
+		#initialization
+		for n1 in N:
+			for n2 in N:
+				if n1 == n2:
+					W[n1,n2] = 0
+				if W[n1, n2] == '-':
+					 W[n1, n2] = float('inf')
+		import copy		
+		for k in N:
+			D = copy.deepcopy(W)
+			for i in N:
+				for j in N:
+					D[i, j] = min(W[i, j], W[i, k]+W[k, j])
+			W = D
+		#converting 'inf' to '-' to better representation
+		gen = ((n1, n2) for n1 in N for n2 in N if W[n1, n2] == float('inf'))
+		for n1, n2 in gen:			
+			W[n1, n2] = '-'
+		return W
+			
 		
 	def mst_prime(self):		
 		assert(self._is_weighted and not self._is_directed), 'MST is used for undirected weighted graph'
@@ -280,7 +304,7 @@ if __name__ == '__main__':
 	g = Graph(is_weighted=True)
 	for n in 'abcdefghij':
 		g.add_node(n)
-	for e in (('a', 'b', 2), ('a', 'c', 8), ('d', 'g', 1), ('c', 'd', 6), ('b', 'd', 4), ('b', 'e', 0), ('e', 'g', 5), 
+	for e in (('a', 'b', 2), ('a', 'c', 8), ('d', 'g', 1), ('c', 'd', 6), ('b', 'd', 4), ('b', 'e', 0), ('e', 'g', 5), ('e', 'j', 3),
 				('e', 'f', 1), ('g', 'f', 4), ('h', 'i', 2), ('h', 'j', 2), ('j', 'i', 7), ('i', 'h', 10), ('i', 'g', 2)):
 		g.add_edge(*e)
 	print(g)
@@ -291,6 +315,7 @@ if __name__ == '__main__':
 	print('Dijkstra(a, g) ', g.dijkstra('a', 'g'))
 	print('Dijkstra(a)    ', g.dijkstra('a')[1])
 	print('Bellman_ford(a)', g.bellman_ford('a')[1])
+	print('Floyed_Warshal()\n', g.floyed_warshall())
 	gund = g.undirected()
 	print(gund)	
 	print(gund.adjacency_matrix())
