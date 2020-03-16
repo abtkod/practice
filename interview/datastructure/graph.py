@@ -150,10 +150,16 @@ class Graph:
 					q.append(nbr)
 		return output if len(output) == len(self._adjlist) else False
 		
-	def dijkstra(self, s, t):
+	def dijkstra(self, s, t=None):
+		''' 
+		It's said that dijkstra does not work with negative weights. It could be because dijkstra cannot find negative cycles 
+		and gets stuck in the loop. If this is the reason, we might use topological sort to check if cycles exist and their weights.
+		The main diference is that here visit can accept the same node if after relaxing, its path_weight is decreased.
+		Also dijstra is used for single pair shortest path. By enabling None target node, I used like single source shortest path.
+		'''
 		assert (self._is_weighted), 'unweighted graph'
 		assert (s in self._adjlist), 's does not exist'
-		assert (t in self._adjlist), 't does not exist'
+		assert (t in self._adjlist or t is None), 't does not exist'
 		path_weights = {x:float('inf') for x in self._adjlist}		
 		prev_node = {x: None for x in self._adjlist}
 		visit = {}		
@@ -164,18 +170,44 @@ class Graph:
 			curw = visit[curn]			
 			gen = ((n, w) for n, w in self._adjlist[curn] if path_weights[n] > curw +  w)
 			for n, w in gen:
+				# relaxing
 				path_weights[n] = curw +  w
 				visit[n] = curw +  w
 				prev_node[n] = curn
 			del(visit[curn])
+		if t is None:
+			# shortest paths to all nodes from s
+			return prev_node, path_weights
 		if prev_node[t] is None:
 			return False
 		path = []
 		n = t
 		while n is not None:
 			path = [n] + path
-			n = prev_node[n]
-		return path_weights[t], path		
+			n = prev_node[n]		
+		return path_weights[t], path
+
+	def bellman_ford(self, s):
+		'''
+		- single source shortest path with positive and negative edges when there is no negative cycle reachable from source
+		- complexity O(EV)
+		'''
+		assert (s in self._adjlist), 'source does not exist'
+		path_weights = {x:float('inf') for x in self._adjlist}
+		pred_node = {x:None for x in self._adjlist}
+		path_weights[s] = 0
+		edges = self.edges()
+		for _ in range(self.ncount()-1): # note: relaxing over edges is done N-1 times
+			for n1, n2, w in edges:
+				# relaxation phase
+				if path_weights[n2] > path_weights[n1] + w:
+					path_weights[n2] = path_weights[n1] + w
+					pred_node[n2] = n1
+		for n1, n2, w in edges: # negative cycle is checked at the end
+			if path_weights[n2] > path_weights[n1] + w:
+				# negative cycle
+				return False, False
+		return pred_node, path_weights
 		
 	def mst_prime(self):		
 		assert(self._is_weighted and not self._is_directed), 'MST is used for undirected weighted graph'
@@ -210,8 +242,8 @@ class Graph:
 				mst.add(e)
 			if len(mst) == self.ncount() - 1:
 				return sorted(mst, key=lambda x: x[2])
-		return False
-		
+		return False            
+	
 	def undirected(self):
 		if not self._is_directed:
 			import copy
@@ -256,9 +288,11 @@ if __name__ == '__main__':
 	print('DFS', g.dfs())
 	print('BFS', g.bfs())
 	print('Topological sort', g.topological_sort())
-	print('Dijkstra(a, g)', g.dijkstra('a', 'g'))
+	print('Dijkstra(a, g) ', g.dijkstra('a', 'g'))
+	print('Dijkstra(a)    ', g.dijkstra('a')[1])
+	print('Bellman_ford(a)', g.bellman_ford('a')[1])
 	gund = g.undirected()
 	print(gund)	
 	print(gund.adjacency_matrix())
-	print(gund.mst_kruskal())
-	print(gund.mst_prime())
+	print('MST Kruskal', gund.mst_kruskal())
+	print('MST Prime  ', gund.mst_prime())
