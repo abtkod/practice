@@ -24,8 +24,8 @@ def kth_multiple(k):
 
 
 class Test(unittest.TestCase):
-	k = 7
-	res = [1,3,5,7,9,15,21]
+	k = 10
+	res = [1,3,5,7,9,15,21,25,27,35]
 	def test_kth_multiple(self):
 		self.assertEqual(self.res, kth_multiple(self.k))
 
