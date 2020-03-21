@@ -83,7 +83,7 @@ if __name__ == '__main__':
 	print(dictionary.getwords('helloworldthisis'))
 	
 	dictionary = Trie()
-	for w in ['looked', 'just', 'like', 'her', 'brother', 'I', 'reset', 'the', 'computer', 'It', 'still', 'didnt', 'boot']:
+	for w in ['looked', 'just', 'like', 'her', 'brother', 'reset', 'the', 'computer', 'It', 'still', 'didnt', 'boot']:
 		dictionary.add_word(w)
 	print(re_space('jesslookedjustliketimherbrother', dictionary))
 	print(re_space('iresetthecomputeritreiostillvfsddidntdfgdboot', dictionary))
