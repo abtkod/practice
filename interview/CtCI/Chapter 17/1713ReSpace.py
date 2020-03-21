@@ -5,10 +5,11 @@ class Trie:
 	class Node:
 		def __init__(self, data):
 			self.data = data
-			self.children = {}
+			self.children = {}			
 	
 	def __init__(self):
 		self.root = self.Node(data = '')
+		self._max_length = 0
 
 	def __str__(self):
 		def read(words, prefix, node):
@@ -20,11 +21,16 @@ class Trie:
 		words = []
 		read(words, '', self.root)
 		return '\n'.join(words)
+
+	def max_length(self):
+		return self._max_length
 			
 
 	def add_word(self, word):
 		assert word.isalpha(), 'invalid word'
 		word = word.lower()
+		if self._max_length < len(word):
+			self._max_length = len(word)
 		node = self.root
 		for ch in word:
 			if ch not in node.children:
@@ -36,21 +42,21 @@ class Trie:
 		assert text.isalpha(), 'invalid word'
 		text = text.lower()
 		output = []
-		i = 0
 		node = self.root
-		while text[i] in node.children:
-			node = node.children[text[i]]
+		for i, ch in enumerate(text):
+			if ch not in node.children:
+				break
+			node = node.children[ch]
 			if '*' in node.children:
-				output.append(text[:i+1])
-			i = i+1
+				output.append(text[:i+1])			
 		return output
 
 def re_space(document, dictionary:Trie):
 	max_word_size = dictionary.max_length()
 	def unconcatenate(start, doc, dic, memo):
-		if doc is None:
+		if start >= len(doc):
 			return 0, ''
-		if doc in memo:
+		if memo[start] is not None:
 			return memo[start]
 		candidates = []
 		# assuming that first character is not unrecongnized
@@ -73,4 +79,11 @@ if __name__ == '__main__':
 	dictionary = Trie()
 	for w in ['hello', 'hellow', 'helloworld', 'hi', 'hacker', 'boy', 'world']:
 		dictionary.add_word(w)
+	print(dictionary)
 	print(dictionary.getwords('helloworldthisis'))
+	
+	dictionary = Trie()
+	for w in ['looked', 'just', 'like', 'her', 'brother', 'I', 'reset', 'the', 'computer', 'It', 'still', 'didnt', 'boot']:
+		dictionary.add_word(w)
+	print(re_space('jesslookedjustliketimherbrother', dictionary))
+	print(re_space('iresetthecomputeritreiostillvfsddidntdfgdboot', dictionary))
