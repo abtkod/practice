@@ -24,12 +24,10 @@ class Heap:
 	def __str__(self):
 		return str(self.root)
 	
-	def find_last(self, node):
-		if node.lnode is None or node.rnode is None:
-			return node
-		return self.find_last(node.rnode) if (node.rnode.lnode is not None or node.lnode.rnode is not None) \
-						 else self.find_last(node.lnode)
-
+	@property
+	def top(self):
+		return self.root.data
+	
 	def heapify(self, node, direction):
 		assert (direction == 'up' or direction == 'down'), 'invalid direction'
 		def swap(n1, n2):
@@ -111,11 +109,21 @@ class Heap:
 		self.heapify(self.root, 'down')
 		return top
 
+	def items(self):
+		items = []
+		v = self.extract_top()
+		while v:
+			items.append(v)
+			v = self.extract_top()
+		return items
+
 def smallest_k(A, k): #nlog(k)
 	mxh = Heap(A[:k], type='max') # O(k)
 	for i in range(k, len(A)):
-		mxh.insert(A[i])
-	return sorted(list(mxh))
+		if A[i] < mxh.top:
+			mxh.extract_top()
+			mxh.insert(A[i])
+	return mxh.items()
 
 
 class Test(unittest.TestCase):
@@ -124,15 +132,10 @@ class Test(unittest.TestCase):
 	def test_heap(self):
 		minheap = Heap(self.data, 'min')
 		print(minheap)
-		value = minheap.extract_top()
-		values = []
-		while value:			
-			values.append(value)
-			value = minheap.extract_top()
-		self.assertEqual(values, sorted(self.data))
+		self.assertEqual(minheap.items(), sorted(self.data))
 
 	def test_smallest_k(self):
-		self.assertEqual(smallest_k(self.data, 3), [1,2,3])
+		self.assertEqual(smallest_k(self.data, 4), [5,3,2,1])
 
 if __name__ == '__main__':
 	unittest.main()
