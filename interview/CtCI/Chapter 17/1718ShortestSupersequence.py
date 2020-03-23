@@ -3,14 +3,17 @@ import unittest
 def shortest_supersequence(short, long):
 	track = {v:-len(long) for v in short}
 	shortest, res = len(long), (0, len(long))
+	minv = None
 	for i, v in enumerate(long):
 		if v in track.keys():
+			prev = track[v]
 			track[v] = i
-			indices = track.values()
-			minix, maxix = min(indices), max(indices)
-			if maxix - minix < shortest:
-				shortest = maxix - minix
-				res = (minix, maxix)
+			if prev == minv or minv is None:
+				indices = track.values()
+				minix, maxix = min(indices), i
+				if maxix - minix < shortest:
+					shortest = maxix - minix
+					res = (minix, maxix)
 	return res
 
 
