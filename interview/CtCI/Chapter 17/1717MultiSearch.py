@@ -22,6 +22,7 @@ def multi_search(bigstr, arrstr):
 				strindex[st].append((index, index + len(st)))
 	return strindex
 
+
 class Test(unittest.TestCase):
 	b = 'doghelloboyboycatcarcartbobobobdogwalkergomissingbabyocat'
 	T = ['dog', 'dogwalker', 'hello', 'boy', 'cat', 'car', 'can', 'bob']
