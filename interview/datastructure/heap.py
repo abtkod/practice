@@ -66,7 +66,7 @@ class Heap:
 
 	def extract_top(self):
 		if self.top is None:
-			return False
+			return
 		self._size -= 1		
 		top = self.top
 		if self._top == self._last:
@@ -75,7 +75,6 @@ class Heap:
 		valuetotop = self._last.value
 		parent = self._last.parent
 		newlast = self._last.lsib
-		assert(newlast.rsib == self._last), 'fkdslj'
 		if parent.rchild == self._last:
 			parent.rchild = None
 		else:
