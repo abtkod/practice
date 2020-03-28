@@ -1,6 +1,6 @@
 import unittest
 
-def baby_names(frequencies, equivalents):	
+def baby_names(frequencies, equivalents): #O(synonyms^2 + names)
 	equi = {}
 	for name1, name2 in equivalents:
 		collection = set((name1, name2))
@@ -17,7 +17,7 @@ def baby_names(frequencies, equivalents):
 		output[equi[name]] += freq
 	return list(output.items())
 
-def baby_names_optimized(names, synonyms):
+def baby_names_optimized(names, synonyms): #worst case O(synonyms^2 + names)
 	counts = {x:f for x,f in names}
 	for name1, name2 in synonyms:
 		lookup1 = name1
