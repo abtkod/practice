@@ -27,12 +27,16 @@ def twos_count(n):
 
 
 class Test(unittest.TestCase):
-	n = 25
-	result = 9
+	n = 14228
 
-	def test_twos_count(self):
-		self.assertEqual(twos_count(self.n), self.result)
-
+	def test_twos_count(self):		
+		count = 0
+		for i in range(self.n+1):
+			i = str(i)
+			for d in i:
+				if d == '2':
+					count += 1
+		self.assertEqual(twos_count(self.n), count)
 
 import sys
 if __name__ == '__main__':
