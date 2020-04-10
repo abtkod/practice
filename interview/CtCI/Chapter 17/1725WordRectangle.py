@@ -50,8 +50,9 @@ def build_rectangle(words):
 	for lwords in permutate(words, l, with_replacement=False):		
 		trienodes = [trie.head] * l
 		rectangle = []
-		isvalid = True
-		for word in lwords:
+		isvalid = True		
+		for wi in range(len(lwords)-1, -1, -1):
+			word = lwords[wi] # improve chance by reading permutations in reverse direction
 			for li, lt in enumerate(word):
 				trienodes[li] = trie.next(lt, current_node=trienodes[li])				
 				if trienodes[li] is None:
@@ -79,7 +80,7 @@ class Test(unittest.TestCase):
 
 		import string, random
 		words = set(['mind', 'idea', 'neat', 'data'])
-		needed = 10
+		needed = 20
 		for size in range(2, 6):			
 			c = 0
 			while c != needed:
