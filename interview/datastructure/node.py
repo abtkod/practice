@@ -133,3 +133,27 @@ class NodeFlexible(BaseNode):
     def clean_children(self):
         while None in self._children:
             self._children.remove(None)
+
+
+if __name__ == '__main__':
+    bn = BaseNode('root-B', 3)
+    print(bn)
+    print(repr(bn))
+
+    n = Node('root-FF', 2)
+    print(n)
+    print(repr(n))
+    print('*' * 60)
+    n[0] = Node('left-FF', 2)
+    rnd = Node('right-FF', 2)
+    n[1] = rnd
+    print(n)
+    print(repr(n))
+    print(repr(rnd))
+    print(f'parents of rnd: {[str(x.value) for x in rnd._parents]}')
+    print('*' * 60)
+    n.remove_child(1)
+    print(n)
+    print(repr(n))
+    print(repr(rnd))
+    print(f'parents of rnd: {[str(x.value) for x in rnd._parents]}')
