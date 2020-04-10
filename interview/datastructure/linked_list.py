@@ -1,4 +1,4 @@
-from datastructure.node import *
+from .node import *
 from random import randint
 
 
@@ -123,3 +123,50 @@ class LinkedListFast(LinkedList):
         self._tail = self._tail._parents[0]
         self._tail.remove_child(0)
         return value
+
+
+if __name__ == '__main__':
+    ll = LinkedList(NodeFlexible)
+    ll.append('a')
+    ll.append('b')
+    ll.append('c')
+    ll.append('d')
+    ll[2] = 0.444
+    print(list(ll))
+    print(ll)
+    print(repr(ll))
+    print('*'*30)
+
+    print(ll)
+    ll.pop()
+    print(ll)
+    print('*'*30)
+
+    llf = LinkedListFast()
+    llf.append('a')
+    llf.append('b')
+    llf.append('c')
+    llf.append('d')
+    llf[2] = 'ccc'
+    print(list(llf))
+    print(llf)
+    print(repr(llf))
+    print('*'*30)
+
+    print(llf)
+    llf.pop()
+    print(llf)
+    print('*'*30)
+
+    print('Comparing the performance of LinkedList vs. LinkedListFast:')
+    from time import time
+    ll = LinkedList()
+    ll_sa = time()
+    for i in range(1000):
+        ll.append(i)
+    print(f'linkedlist - append time = {time()-ll_sa}')
+    llf = LinkedListFast()
+    llf_sa = time()
+    for i in range(1000):
+        llf.append(i)
+    print(f'linkedlistfast - append time = {time()-llf_sa}')
