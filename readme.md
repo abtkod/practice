@@ -6,7 +6,7 @@
 ## Data Structures
 
 ### [Node](https://github.com/abtkod/practice/blob/master/interview/datastructure/node.py)
-* **BaseNode** - This is the super class for othe node classes. 
+* **BaseNode** - This is the super class for other node classes. 
 * **Node** - Fixed typed nodes with fixed number of children. It is used to enforce consistency among all nodes of the data structure.
 * **NodeFlexible** - Felxible typed nodes with infinite number of children.
 
@@ -17,12 +17,32 @@
 
 ### [Tree](https://github.com/abtkod/practice/blob/master/interview/datastructure/tree.py)
 
+### [Trie](https://github.com/abtkod/practice/blob/master/interview/datastructure/trie.py)
+
+### [Heap](https://github.com/abtkod/practice/blob/master/interview/datastructure/heap.py)
+
 ### [Stack](https://github.com/abtkod/practice/blob/master/interview/datastructure/stack.py)
 
 ### [Queue](https://github.com/abtkod/practice/blob/master/interview/datastructure/queue.py)
 
-### Graph
+### [Graph](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py)
 
 ## Algorithms
+
+### [DFS](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L83)
+
+### [Topological Sort](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L122)
+
+### [Dijkstra](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L153)
+
+### [Bellman Ford](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L190)
+
+### [Floyed Warshall](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L212)
+
+### [MST Prime](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L236)
+
+### [MST Kruskal](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L254)
+
+### [BFS](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L99)
 
 ## Problems
