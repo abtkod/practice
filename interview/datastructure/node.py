@@ -139,11 +139,11 @@ if __name__ == '__main__':
     bn = BaseNode('root-B', 3)
     print(bn)
     print(repr(bn))
-
     n = Node('root-FF', 2)
     print(n)
     print(repr(n))
     print('*' * 60)
+
     n[0] = Node('left-FF', 2)
     rnd = Node('right-FF', 2)
     n[1] = rnd
@@ -152,8 +152,40 @@ if __name__ == '__main__':
     print(repr(rnd))
     print(f'parents of rnd: {[str(x.value) for x in rnd._parents]}')
     print('*' * 60)
+
     n.remove_child(1)
     print(n)
     print(repr(n))
     print(repr(rnd))
     print(f'parents of rnd: {[str(x.value) for x in rnd._parents]}')
+    print('*' * 60)
+
+    nf = NodeFlexible('root-Flx')
+    print(nf)
+    print(repr(nf))
+    print('*' * 60)
+    nfy = NodeFlexible('yellow')
+    nf += nfy
+    nf += nfy
+    nf += 1
+    nf[2] = nfy
+    nf += 7
+    print(nf)
+    print(repr(nf))
+    print(repr(nfy))
+    print('*' * 60)
+
+    nf -= nfy
+    print(nf)
+    nf.clean_children()
+    print(nf)
+    print(repr(nf))
+    print(repr(nfy))
+    print('*' * 60)
+
+    root = Node('root', 2)
+    root[0] = Node('l', 2)
+    root[1] = Node('r', 2)
+    root[1][1] = Node('rr', 2)
+    print(root)
+    print(root[1])
