@@ -1,4 +1,4 @@
-from datastructure.node import *
+from .node import BaseNode, Node, NodeFlexible
 
 
 class Queue:
@@ -49,3 +49,27 @@ class Queue:
             val = str(node.value) if type(node.value) != str else "'%s'" % node.value
             return "%s"% val + ' > ' + queue_str(node[0])
         return f'{self.__class__.__name__}<{self._size}>: [{queue_str(self._first)[:-3]}]'
+
+
+if __name__ == '__main__':    
+	q = Queue(NodeFlexible)
+	q.push(1)
+	q.push('2')
+	q.push('three')
+	print(repr(q))
+	print('-' * 50)
+	print(q)
+	print(len(q), q.pop())
+	print(len(q), q.pop())
+	print(len(q))
+	print(q)
+	print('*'*50)
+	q = Queue(Node)
+	q.push(1)
+	q.push(2)
+	q.push(3)
+	print(q)
+	print(len(q), q.pop())
+	print(len(q), q.pop())
+	print(len(q))
+	print(q)
