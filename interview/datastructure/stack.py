@@ -1,4 +1,4 @@
-from datastructure.node import *
+from .node import *
 
 
 class Stack:
@@ -44,3 +44,30 @@ class Stack:
             val = str(node.value) if type(node.value) != str else "'%s'" % node.value
             return val + ' > ' +"%s"% stack_str(node[0])
         return f'{self.__class__.__name__}<{self._size}>: [{stack_str(self._top)[:-3] }]'
+
+
+if __name__ == '__main__':
+    s = Stack(BaseNode)
+    s.push(1)
+    s.push('2')
+    s.push('three')
+    print(repr(s))
+    print('-' * 50)
+
+    print(s)
+    print(len(s), s.pop())
+    print(len(s), s.pop())
+    print(len(s))
+    print(s)
+    print('*'*50)
+    
+    s = Stack(Node)
+    print(len(s), s.pop())
+    s.push(1)
+    s.push(2)
+    s.push(3)
+    print(s)
+    print(len(s), s.pop())
+    print(len(s), s.pop())
+    print(len(s))
+    print(s)
