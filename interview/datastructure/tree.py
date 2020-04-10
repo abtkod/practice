@@ -1,4 +1,4 @@
-from datastructure.node import *
+from .node import *
 
 class BinaryTree(Node):
     def __init__(self, val):                
@@ -133,3 +133,38 @@ class BinarySearchTree:
     
     def __str__(self):
         return str(self._root)
+
+
+if __name__ == '__main__':    
+    BST = BinarySearchTree
+    BT = BinaryTree
+    root = BT('ROOT')
+    root[0] = BT('l')
+    root[1] = BT('r')
+    root[0][0] = BT('ll')
+    root[0][1] = BT('lr')
+    root[1][1] = BT('rr')
+    root[1][1][1] = BT('rrr')
+
+    print(root)
+    print(repr(root))
+    print('*'*60)
+
+    print(root[1][1])
+    print(repr(root[1][1][1]))
+    print('*'*60)
+
+    print(root[1][1][1] == root.access([1,1,1]))
+    print('*'*60)
+
+    bst = BST(int)
+    print(bst.insert(100).insert(10).insert(20).insert(15).insert(17).insert(16).insert(1).insert(5))
+    print(bst.search(11))
+    print(bst.search(100))
+    print(bst.search(10))
+    print(bst.search(15))
+    print(bst.access(bst.search(15)))
+    print('*' * 60)
+
+    print(bst)
+    print(bst.remove(10))
