@@ -29,4 +29,20 @@
 
 ## Algorithms
 
+### [DFS](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L83)
+
+### [Topological Sort](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L122)
+
+### [Dijkstra](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L153)
+
+### [Bellman Ford](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L190)
+
+### [Floyed Warshall](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L212)
+
+### [MST Prime](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L236)
+
+### [MST Kruskal](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L254)
+
+### [BFS](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L99)
+
 ## Problems
