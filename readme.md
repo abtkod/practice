@@ -1,7 +1,8 @@
 ## Table of Contents
-- [Data Structures](#data-structures): [Node](#node), [Linked List](#linked-list), [Tree](#tree), [Stack](#stack), [Queue](#queue), [Graph](#graph)
-- [Algorithms:](#algorithms)
-- [Problems:](#problems)
+- [Data Structures](#data-structures): [Node](#node), [Linked List](#linked-list), [Stack](#stack), [Queue](#queue), [Tree](#tree), [Trie](#trie), [Heap](#heap), [Graph](#graph)
+- [Algorithms](#algorithms): [DFS](#dfs), [BFS](#bfs), [Topological Sort](#topological-sort), [Dijkstra](#dijkstra), [Bellman Ford](#bellman-ford), [Floyed Warshall](#floyed-warshall), [MST Prime](#mst-prime), [MST Kruskal](#mst-kruskal)
+- Problems: [CtCI](https://github.com/abtkod/practice/tree/master/interview/CtCI)
+- [Deep Learning](https://github.com/abtkod/practice/tree/master/Deep%20Learning)
 
 ## Data Structures
 
@@ -15,21 +16,23 @@
   *  Time Complexity
 * **LinkedListFast** - This is the doubly-linked list which uses both forward and backward links to the next and previous nodes. Here we are using both head and tail pointers to enhance the speed of appending and removing nodes to/from the end.
 
+### [Stack](https://github.com/abtkod/practice/blob/master/interview/datastructure/stack.py)
+
+### [Queue](https://github.com/abtkod/practice/blob/master/interview/datastructure/queue.py)
+
 ### [Tree](https://github.com/abtkod/practice/blob/master/interview/datastructure/tree.py)
 
 ### [Trie](https://github.com/abtkod/practice/blob/master/interview/datastructure/trie.py)
 
 ### [Heap](https://github.com/abtkod/practice/blob/master/interview/datastructure/heap.py)
 
-### [Stack](https://github.com/abtkod/practice/blob/master/interview/datastructure/stack.py)
-
-### [Queue](https://github.com/abtkod/practice/blob/master/interview/datastructure/queue.py)
-
 ### [Graph](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py)
 
 ## Algorithms
 
 ### [DFS](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L83)
+
+### [BFS](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L99)
 
 ### [Topological Sort](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L122)
 
@@ -42,7 +45,3 @@
 ### [MST Prime](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L236)
 
 ### [MST Kruskal](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L254)
-
-### [BFS](https://github.com/abtkod/practice/blob/master/interview/datastructure/graph.py#L99)
-
-## Problems
