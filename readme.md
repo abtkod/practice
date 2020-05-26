@@ -3,7 +3,7 @@
 - [Algorithms](#algorithms): [DFS](#dfs), [BFS](#bfs), [Topological Sort](#topological-sort), [Dijkstra](#dijkstra), [Bellman Ford](#bellman-ford), [Floyed Warshall](#floyed-warshall), [MST Prime](#mst-prime), [MST Kruskal](#mst-kruskal)
 - Problems: [CtCI](https://github.com/abtkod/practice/tree/master/CtCI)
 - [Deep Learning](https://github.com/abtkod/practice/tree/master/deeplearning)
-- [Notes](https://github.com/abtkod/practice/tree/master/notes): [python](https://nbviewer.jupyter.org/github/abtkod/practice/blob/master/notes/python-notes.ipynb)
+- [Notes](https://github.com/abtkod/practice/tree/master/notes): [python](https://nbviewer.jupyter.org/github/abtkod/practice/blob/master/notes/python-notes.ipynb), [data-science](https://nbviewer.jupyter.org/github/abtkod/practice/blob/master/notes/ds-notes.ipynb)
 
 ## Data Structures
 
