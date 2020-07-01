@@ -2,6 +2,7 @@ import numpy as np
 from functools import reduce
 
 """
+Build a fully connected neural network from scratch.
 **Reminder**: The general methodology to build a Neural Network is to:
     1. Define the neural network structure ( # of input units,  # of hidden units, etc). 
     2. Initialize the model's parameters
@@ -12,9 +13,12 @@ from functools import reduce
         - Update parameters (gradient descent)
 """
 
-class DeepNetwork(object):
+class NN(object):
     
     # activation functions with derivatives
+    IDENTITY = lambda z, derivative=False: z if not derivative else np.ones(z.shape)
+    RELU = lambda z, derivative=False: np.maximum(0, z) if not derivative else np.where(z<0, 0, 1)
+
     def SIGMOID(z, derivative=False):        
         if not derivative:
             r = 1/(1 + np.exp(-z))
@@ -23,15 +27,24 @@ class DeepNetwork(object):
         r[r == 0.0] = np.nextafter(0, 1)
         r[r == 1.0] = np.nextafter(1, -1)
         return r
-#     SIGMOID = lambda z, derivative=False: 1/(1 + np.exp(-z)) if not derivative else np.exp(-z)/(1+np.exp(-z))**2
-    TANH = lambda z, derivative=False: np.tanh(z) if not derivative else 1 - np.tanh(z)**2
-    RELU = lambda z, derivative=False: np.maximum(0, z) if not derivative else np.where(z<0, 0, 1)
     
-    # it may even works with multiple unit output layer
-    loss = lambda yhat, y, derivative=False: (-1) * (y * np.log(yhat) + (1-y) * np.log(1-yhat)) if not derivative else\
+    def TANH(z, derivative=False):        
+        if not derivative:
+            r = np.tanh(z)
+        else:
+            r = 1 - np.tanh(z)**2
+        r[r == 0.0] = np.nextafter(0, 1)
+        r[r == 1.0] = np.nextafter(1, -1)
+        return r        
+    
+    # logloss for classification
+    LOGLOSS = lambda yhat, y, derivative=False: (-1) * (y * np.log(yhat) + (1-y) * np.log(1-yhat)) if not derivative else\
                                             (-1)*y/yhat + (1-y)/(1-yhat)
+    
+    SQUARELOSS = lambda yhat, y, derivative=False: (yhat-y)**2 if not derivative else 2 * (yhat-y)
+        
             
-    cost = lambda yhat, y, regularization_value: 1/y.shape[1] * np.sum(DeepNetwork.loss(yhat, y), axis=1) + regularization_value
+    _COST_FUNC = lambda yhat, y, loss_func, regularization_value: 1/y.shape[1] * np.sum(loss_func(yhat, y), axis=1) + regularization_value
     
     # regularization
     class Regularization:
@@ -48,8 +61,9 @@ class DeepNetwork(object):
             if self.kind == 'L2':
                 return kw['lambd']/kw['m']/2 * reduce((lambda x,y: x+y), map(lambda W: np.linalg.norm(W, ord='fro')**2, kw['W']))        
 
-    def __init__(self, units_per_layer, activation_functions, regularization_type='L2'):
+    def __init__(self, units_per_layer, activation_functions, loss_func, regularization_type='L2'):
         assert len(units_per_layer) == len(activation_functions), 'layer mismatch'
+        self.loss_func = loss_func
         self._regularizer = self.Regularization(regularization_type)
         self.units_per_layer = list(units_per_layer)
         self.activation_functions = list(activation_functions)
@@ -65,7 +79,7 @@ class DeepNetwork(object):
         return self._b[1:]
         
     def train(self, X, Y, alpha, max_iterations, lambd=None, dropout:list=None, 
-              terminate_on_cost_change=0.0000001, print_cost_every=100)->np.array:                
+              terminate_on_cost_change=0.0000001, print_cost_every=False)->np.array:                
         '''Dropout is a list of floats. Each number tells the percentage of neurons to be ignored in each layer'''
         
         L = len(self.units_per_layer) # input is not counted in the number of layers
@@ -110,9 +124,9 @@ class DeepNetwork(object):
                         
             # backward propagation from layer L to layer 1    
             for l in range(L, 0, -1): # from L <= l <= 1         
-                if l == L:              
-                    # dZ[L] = DeepNetwork.loss(A[L], Y, derivative=True) * G[L](Z[L], derivative=True)
-                    dZ[L] = A[L] - Y
+                if l == L:
+                    # when loss_func is logloss and last layer's activation function is sigmoid: dZ[L] = A[L] - Y
+                    dZ[L] = self.loss_func(A[L], Y, derivative=True) * G[L](Z[L], derivative=True)
                 else:
                     dZ[l] = np.dot(W[l+1].T, dZ[l+1]) * G[l](Z[l], derivative=True) # dA[l]= np.dot(W[l+1].T, dZ[l+1])
                 dW[l] = 1/m * np.dot(dZ[l], A[l-1].T)
@@ -123,21 +137,20 @@ class DeepNetwork(object):
                 b[l] = b[l] - alpha * db[l]
 
             reg_val = 0.0 if lambd is None else self._regularizer.cost_adjustment(**{'lambd':lambd, 'm':m, 'W':W[1:]})
-            new_cost = DeepNetwork.cost(A[L], Y, regularization_value=reg_val)
+            new_cost = NN._COST_FUNC(yhat=A[L], y=Y, loss_func=self.loss_func, regularization_value=reg_val)
             if 0 < cost - new_cost < terminate_on_cost_change:
                 cost = new_cost
                 break
             cost = new_cost
-            if i % print_cost_every == 0:
+            if print_cost_every and i % print_cost_every == 0:
                 print('iteration: {}, cost: {}'.format(i, cost))
             
         print('iteration: {}, cost: {}'.format(i, cost))
         self._W = W
         self._b = b
 
-    def classify(self, X):        
-        assert X.shape[0] == self._W[1].shape[1], 'invalid input'
-        from copy import copy
+    def predict_proba(self, X):
+        assert X.shape[0] == self._W[1].shape[1], 'invalid input'        
         A = X
         G = [None] + self.activation_functions        
         for l in range(1, len(self._W)):
@@ -146,4 +159,83 @@ class DeepNetwork(object):
             Z = np.dot(w, A) + b
             A = G[l](Z)
         return A
+    
+    def predict(self, X, classification=True, threshold=0.5):
+        if classification:
+            yhat = self.predict_proba(X)
+            return np.where(yhat>=threshold, 1, 0)
+        else:
+            return self.predict_proba(X)
+    
+
+import unittest
+class Test(unittest.TestCase):    
+    
+    def test_linear_regression(self):
+        print('-'*20)
+        print('testing simple linear regression model...')
+                
+        W = np.array([3, 5]).reshape(1,2)
+        b = np.array([-4])
         
+        np.random.seed(1)
+        X_train = np.random.uniform(low=-1, high=1, size=(2,100)) # random points on a plane (-1, 1)
+        noise = 0.1 * np.random.randn(1, X_train.shape[1])
+        y_train = b + np.dot(W, X_train) + noise
+
+        X_test = np.random.uniform(low=-1, high=1, size=(2,10)) # random points on a plane (-1, 1)
+        noise = 0.1 * np.random.randn(1, X_test.shape[1])
+        y_test = b + np.dot(W, X_test) + noise
+        
+        nn = NN(units_per_layer=[1], activation_functions=[NN.IDENTITY], loss_func=NN.SQUARELOSS)
+        nn.train(X_train, y_train, alpha=0.5, max_iterations=1000, print_cost_every=100)
+        y_pred = nn.predict(X_test, classification=False)
+        
+        self.assertTrue((nn.W[0].round(0) == W).all() and nn.b[0].round(0) == b)
+    
+    def test_binary_logistic_regression(self):
+        print('-'*20)
+        print('testing binary logistic regression model...')
+        
+        def in_sphere(X, radius, center):
+            return np.where(np.sum((X - center)**2, axis=0, keepdims=True) < radius**2, 1, 0)
+        
+        np.random.seed(1)
+        X_train = np.random.uniform(low=-2, high=2, size=(3,10000)) # random points in a cube with volume = 64
+        y_train = in_sphere(X_train, 1.0, 0.0)        
+        X_test = np.random.uniform(low=-2, high=2, size=(3,1000))    
+        y_test = in_sphere(X_test, 1.0, 0.0)
+        
+        nn = NN(units_per_layer=[4,1], activation_functions=[NN.RELU, NN.SIGMOID], loss_func=NN.LOGLOSS)
+        nn.train(X_train, y_train, alpha=0.5, max_iterations=1000, print_cost_every=100)
+        y_pred = nn.predict(X_test)
+        acc = np.sum(y_pred == y_test) / y_test.shape[1]
+        
+        self.assertTrue(acc > 0.97)
+        
+    def test_XOR(self):        
+        print('-'*20)
+        print('testing an XOR classifier...')
+        
+        def XOR(X):
+            '''
+            This function requires exponential(2^(n-1)) units if not represented in deep layers.
+            '''
+            from functools import reduce
+            xor_func = lambda vec: reduce((lambda x,y: bool(x)!= bool(y)), vec)
+            return np.apply_along_axis(xor_func, axis=0, arr=X).reshape(1, X.shape[1])
+        
+        X_train = np.random.randint(low=0, high=2, size=(8, 1000))
+        y_train = XOR(X_train)                
+        X_test = np.random.randint(low=0, high=2, size=(8, 100))
+        y_test = XOR(X_test)
+        
+        nn = NN([13, 13, 13, 1], [NN.RELU, NN.RELU, NN.RELU, NN.SIGMOID], loss_func=NN.LOGLOSS)
+        nn.train(X_train, y_train, alpha=0.01, max_iterations=15000, print_cost_every=500)
+        y_pred = nn.predict(X_test)
+        acc = np.sum(y_pred == y_test) / y_test.shape[1]        
+        self.assertTrue(acc > 0.8)
+        
+
+if __name__ == '__main__':
+        unittest.main()
