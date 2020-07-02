@@ -89,8 +89,9 @@ class NN(object):
         return self._b[1:]
         
     def train(self, X, Y, alpha, max_iterations, lambd=None, dropout:list=None, 
-              terminate_on_cost_change=0.0000001, print_cost_every=False)->np.array:                
-        '''Dropout is a list of floats. Each number tells the percentage of neurons to be ignored in each layer'''
+              terminate_on_cost_change=0.0000001, return_cost_every=False)->float:
+        '''train is a generator function and it can be used to track level of overfitting using validation
+        Dropout is a list of floats. Each number tells the percentage of neurons to be ignored in each layer'''
         
         L = len(self.units_per_layer) # input is not counted in the number of layers
         
@@ -152,12 +153,24 @@ class NN(object):
                 cost = new_cost
                 break
             cost = new_cost
-            if print_cost_every and i % print_cost_every == 0:
-                print('iteration: {}, cost: {}'.format(i, cost))
-            
-        print('iteration: {}, cost: {}'.format(i, cost))
+            if return_cost_every and i % return_cost_every == 0:
+                self._W = W
+                self._b = b
+                yield cost
+                    
         self._W = W
         self._b = b
+        yield cost
+        
+    def fit(self, X, Y, alpha, max_iterations, lambd=None, dropout:list=None, 
+              terminate_on_cost_change=0.0000001, calculate_cost_every=False, print_costs=False)->list:
+        trainer = self.train(X, Y, alpha, max_iterations, lambd, dropout, terminate_on_cost_change, return_cost_every=calculate_cost_every)
+        costs = []
+        for cost in trainer:
+            if print_costs:
+                print(cost)
+            costs.append(cost)
+        return np.array(costs).flatten()
 
     def predict_proba(self, X):
         assert X.shape[0] == self._W[1].shape[1], 'invalid input'        
@@ -198,7 +211,7 @@ class Test(unittest.TestCase):
         y_test = b + np.dot(W, X_test) + noise
         
         nn = NN(units_per_layer=[1], activation_functions=[NN.IDENTITY], loss_func=NN.SQUARELOSS)
-        nn.train(X_train, y_train, alpha=0.5, max_iterations=1000, print_cost_every=100)
+        nn.fit(X_train, y_train, alpha=0.5, max_iterations=1000, calculate_cost_every=100, print_costs=True)
         y_pred = nn.predict(X_test, classification=False)
         
         self.assertTrue((nn.W[0].round(0) == W).all() and nn.b[0].round(0) == b)
@@ -217,7 +230,7 @@ class Test(unittest.TestCase):
         y_test = in_sphere(X_test, 1.0, 0.0)
         
         nn = NN(units_per_layer=[4,1], activation_functions=[NN.RELU, NN.SIGMOID], loss_func=NN.LOGLOSS)
-        nn.train(X_train, y_train, alpha=0.5, max_iterations=1000, print_cost_every=100)
+        nn.fit(X_train, y_train, alpha=0.5, max_iterations=1000, calculate_cost_every=100, print_costs=True)
         y_pred = nn.predict(X_test)
         acc = np.sum(y_pred == y_test) / y_test.shape[1]
         
@@ -235,16 +248,22 @@ class Test(unittest.TestCase):
             xor_func = lambda vec: reduce((lambda x,y: bool(x)!= bool(y)), vec)
             return np.apply_along_axis(xor_func, axis=0, arr=X).reshape(1, X.shape[1])
         
+        np.random.seed(1)
         X_train = np.random.randint(low=0, high=2, size=(8, 1000))
         y_train = XOR(X_train)                
+        np.random.seed(7)
         X_test = np.random.randint(low=0, high=2, size=(8, 100))
         y_test = XOR(X_test)
         
         nn = NN([13, 13, 13, 1], [NN.RELU, NN.RELU, NN.RELU, NN.SIGMOID], loss_func=NN.LOGLOSS)
-        nn.train(X_train, y_train, alpha=0.01, max_iterations=15000, print_cost_every=500)
+        trainer = nn.train(X_train, y_train, alpha=0.01, max_iterations=20000, return_cost_every=2000)
+        for cost in trainer:
+            y_pred = nn.predict(X_test)
+            acc = np.sum(y_pred == y_test) / y_test.shape[1]
+            print(f'train cost: {cost}, validation accuracy:{acc}')
         y_pred = nn.predict(X_test)
         acc = np.sum(y_pred == y_test) / y_test.shape[1]        
-        self.assertTrue(acc > 0.8)
+        self.assertTrue(acc > 0.9)
         
 
 if __name__ == '__main__':
