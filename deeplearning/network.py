@@ -62,7 +62,17 @@ class NN(object):
                 return kw['lambd']/kw['m']/2 * reduce((lambda x,y: x+y), map(lambda W: np.linalg.norm(W, ord='fro')**2, kw['W']))        
 
     def __init__(self, units_per_layer, activation_functions, loss_func, regularization_type='L2'):
-        assert len(units_per_layer) == len(activation_functions), 'layer mismatch'
+        from inspect import signature
+        assert (callable(loss_func)), 'loss_func is not callable'        
+        assert (len(signature(loss_func).parameters) > 2), 'insufficient parameters for loss_func'
+        assert ('derivative' in signature(loss_func).parameters), "loss_func must have a 'derivative' parameter"
+        assert len(units_per_layer) == len(activation_functions), 'layer mismatch'        
+        for i, af in enumerate(activation_functions):
+            assert (callable(af)), f'entry at index {i} of activation_functions is not callable'
+            func_sig = signature(af)
+            assert (len(func_sig.parameters) > 1), f'insufficient parameters for activation function at index: {i}'
+            assert ('derivative' in func_sig.parameters), f"activation function at index {i} does not have a 'derivative' parameter"
+        
         self.loss_func = loss_func
         self._regularizer = self.Regularization(regularization_type)
         self.units_per_layer = list(units_per_layer)
