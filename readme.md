@@ -1,9 +1,13 @@
 ## Table of Contents
+- [Deep Learning](#deep-learning)
 - [Data Structures](#data-structures): [Node](#node), [Linked List](#linked-list), [Stack](#stack), [Queue](#queue), [Tree](#tree), [Trie](#trie), [Heap](#heap), [Graph](#graph), [Examples](#examples)
 - [Algorithms](#algorithms): [DFS](#dfs), [BFS](#bfs), [Topological Sort](#topological-sort), [Dijkstra](#dijkstra), [Bellman Ford](#bellman-ford), [Floyed Warshall](#floyed-warshall), [MST Prime](#mst-prime), [MST Kruskal](#mst-kruskal)
 - Problems: [CtCI](https://github.com/abtkod/practice/tree/master/CtCI)
-- [Deep Learning](#deep-learning)
 - [Notes](https://github.com/abtkod/practice/tree/master/notes): [python](https://nbviewer.jupyter.org/github/abtkod/practice/blob/master/notes/python-notes.ipynb), [data-science](https://nbviewer.jupyter.org/github/abtkod/practice/blob/master/notes/ds-notes.ipynb)
+
+## Deep Learning
+### [network](https://github.com/abtkod/practice/blob/master/deeplearning/network.py): self made sequential fully connected neural network class.
+### [projects](https://nbviewer.jupyter.org/github/abtkod/practice/blob/master/deeplearning/projects.ipynb): side by side examples in different deep learning platforms.
 
 ## Data Structures
 
@@ -48,6 +52,3 @@
 ### [MST Prime](https://github.com/abtkod/practice/blob/master/datastructure/graph.py#L236)
 
 ### [MST Kruskal](https://github.com/abtkod/practice/blob/master/datastructure/graph.py#L254)
-
-## Deep Learning
-### [Network](https://github.com/abtkod/practice/blob/master/deeplearning/network.py): My custom sequential fully connected neural network class.
